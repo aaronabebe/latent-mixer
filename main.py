@@ -1,16 +1,18 @@
 import io
 import json
 from pathlib import Path
+
+import numpy as np
 import torch
 import torchaudio
-import numpy as np
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from stable_audio_tools.models.factory import create_model_from_config
 from stable_audio_tools.models.utils import load_ckpt_state_dict
 from stable_audio_tools.training.utils import copy_state_dict
-from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -22,14 +24,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL = None
 SAMPLE_RATE = 44100
 
+
 def load_model():
     global MODEL
     if MODEL is None:
-        config_path = Path("../stable-audio-tools/stable_audio_tools/configs/model_configs/autoencoders/stable_audio_2_0_vae.json")
+        config_path = Path(
+            "../stable-audio-tools/stable_audio_tools/configs/model_configs/autoencoders/stable_audio_2_0_vae.json"
+        )
         checkpoint_path = Path("../stable-audio-tools/vae.ckpt")
         with config_path.open() as f:
             config = json.load(f)
@@ -38,11 +45,13 @@ def load_model():
         MODEL = vae.to(DEVICE).eval().requires_grad_(False)
     return MODEL
 
+
 @torch.no_grad()
 def process_audio(tensor):
     model = load_model()
     encoded = model.encode(tensor)
     return encoded
+
 
 async def read_audio(file: UploadFile) -> torch.Tensor:
     content = await file.read()
@@ -53,24 +62,31 @@ async def read_audio(file: UploadFile) -> torch.Tensor:
         tensor = resampler(tensor)
     return tensor.to(DEVICE)
 
+
 def weighted_average(vec1, vec2, weight):
     return (1 - weight) * vec1 + weight * vec2
+
 
 def scale_transform(vec, factor):
     scale = 0.5 + factor
     return vec * scale
 
+
 def rotate_transform(vec, factor):
     angle = factor * np.pi
     cos, sin = np.cos(angle), np.sin(angle)
-    rotation_matrix = torch.tensor([[cos, -sin], [sin, cos]], device=vec.device, dtype=torch.float32)
+    rotation_matrix = torch.tensor(
+        [[cos, -sin], [sin, cos]], device=vec.device, dtype=torch.float32
+    )
     orig_shape = vec.shape
     vec_2d = vec.reshape(-1, 2)
     rotated = torch.matmul(vec_2d, rotation_matrix)
     return rotated.reshape(orig_shape)
 
+
 def nonlinear_transform(vec, factor):
     return torch.tanh(vec * (1 + factor))
+
 
 class TransformParams(BaseModel):
     scale: float
@@ -80,12 +96,13 @@ class TransformParams(BaseModel):
     rotate_active: bool
     nonlinear_active: bool
 
+
 @app.post("/interpolate/")
 async def interpolate_audio(
     file1: UploadFile = File(...),
     file2: UploadFile = File(...),
     x: float = Form(...),
-    transforms: str = Form(...)
+    transforms: str = Form(...),
 ):
     try:
         transform_params = TransformParams.parse_raw(transforms)
@@ -125,11 +142,13 @@ async def interpolate_audio(
         buffer.seek(0)
 
         return StreamingResponse(buffer, media_type="audio/wav")
-    
+
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
