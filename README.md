@@ -37,6 +37,10 @@ and **interesting** sounds.
 The tool allows you to interpolate two embeddings by using a weighted average between them.
 After that you can sequentially apply different transformations on the embedding (currently scaling, rotating and a nonlinear transform).
 
+<p align="center">
+  <img src="./assets/screen.jpg" width="500" alt="Screenshot of the tool">
+</p>
+
 ## Running
 
 ### Install deps
