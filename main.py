@@ -24,7 +24,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL = None
@@ -68,8 +67,7 @@ def weighted_average(vec1, vec2, weight):
 
 
 def scale_transform(vec, factor):
-    scale = 0.5 + factor
-    return vec * scale
+    return vec * factor
 
 
 def rotate_transform(vec, factor):
@@ -147,6 +145,8 @@ async def interpolate_audio(
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn

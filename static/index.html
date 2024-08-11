@@ -1,303 +1,358 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Audio Interpolator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --background: #ffffff;
-            --foreground: #0f172a;
-            --muted: #f1f5f9;
-            --muted-foreground: #64748b;
-            --border: #e2e8f0;
-            --input: #e2e8f0;
-            --primary: #0f172a;
-            --primary-foreground: #ffffff;
-            --secondary: #f1f5f9;
-            --secondary-foreground: #0f172a;
-            --radius: 0.5rem;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background);
-            color: var(--foreground);
-            line-height: 1.5;
-            padding: 2rem;
-            max-width: 65rem;
-            margin: 0 auto;
-        }
-        h1, h2, h3 {
-            font-weight: 600;
-            line-height: 1.2;
-        }
-        h1 {
-            font-size: 2.25rem;
-            margin-bottom: 2rem;
-        }
-        h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
-        .container {
-            background-color: var(--background);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border);
-        }
-        .waveform-container {
-            width: 100%;
-            height: 6rem;
-            background-color: var(--muted);
-            margin-top: 0.75rem;
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        .file-upload-label {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem 1rem;
-            background-color: var(--secondary);
-            color: var(--secondary-foreground);
-            border-radius: var(--radius);
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s, color 0.2s;
-        }
-        .file-upload-label:hover {
-            background-color: var(--primary);
-            color: var(--primary-foreground);
-        }
-        button {
-            background-color: var(--primary);
-            color: var(--primary-foreground);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: opacity 0.2s;
-        }
-        button:hover {
-            opacity: 0.9;
-        }
-        details {
-            margin-bottom: 1.5rem;
-        }
-        summary {
-            font-weight: 500;
-            cursor: pointer;
-            padding: 0.75rem;
-            background-color: var(--secondary);
-            border-radius: var(--radius);
-            transition: background-color 0.2s;
-        }
-        summary:hover {
-            background-color: var(--input);
-        }
-        .transform-control {
-            display: flex;
-            align-items: center;
-            margin: 1rem 0;
-        }
-        .transform-control label {
-            margin-right: 1rem;
-            min-width: 5rem;
-            font-weight: 500;
-        }
-        .transform-control input[type="range"] {
-            flex-grow: 1;
-        }
-        .value-display {
-            min-width: 2.5rem;
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-        audio {
-            width: 100%;
-            margin-top: 0.75rem;
-        }
+      :root {
+        --background: #ffffff;
+        --foreground: #0f172a;
+        --muted: #f1f5f9;
+        --muted-foreground: #64748b;
+        --border: #e2e8f0;
+        --input: #e2e8f0;
+        --primary: #0f172a;
+        --primary-foreground: #ffffff;
+        --secondary: #f1f5f9;
+        --secondary-foreground: #0f172a;
+        --radius: 0.5rem;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--background);
+        color: var(--foreground);
+        line-height: 1.5;
+        padding: 2rem;
+        max-width: 65rem;
+        margin: 0 auto;
+      }
+      h1,
+      h2,
+      h3 {
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      h1 {
+        font-size: 2.25rem;
+        margin-bottom: 2rem;
+      }
+      h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+      .container {
+        background-color: var(--background);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+        margin-right: 1.5rem;
+        border: 1px solid var(--border);
+      }
+      .input-container {
+        display: flex;
+        justify-items: center;
+      }
+      .waveform-container {
+        width: 100%;
+        height: 6rem;
+        background-color: var(--muted);
+        margin-top: 0.75rem;
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      .file-upload-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        background-color: var(--secondary);
+        color: var(--secondary-foreground);
+        border-radius: var(--radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background-color 0.2s,
+          color 0.2s;
+      }
+      .file-upload-label:hover {
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+      }
+      button {
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius);
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: opacity 0.2s;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      details {
+        margin-bottom: 1.5rem;
+      }
+      summary {
+        font-weight: 500;
+        cursor: pointer;
+        padding: 0.75rem;
+        background-color: var(--secondary);
+        border-radius: var(--radius);
+        transition: background-color 0.2s;
+      }
+      summary:hover {
+        background-color: var(--input);
+      }
+      .transform-control {
+        display: flex;
+        align-items: center;
+        margin: 1rem 0;
+      }
+      .transform-control label {
+        margin-right: 1rem;
+        min-width: 5rem;
+        font-weight: 500;
+      }
+      .transform-control input[type="range"] {
+        flex-grow: 1;
+      }
+      .value-display {
+        min-width: 2.5rem;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      audio {
+        width: 100%;
+        margin-top: 0.75rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>latent mixer v1</h1>
-    <div class="container">
+    <div class="input-container">
+      <div class="container">
         <h3>audio 1</h3>
         <label for="audio1" class="file-upload-label">upload audio</label>
-        <input type="file" id="audio1" accept="audio/*">
+        <input type="file" id="audio1" accept="audio/*" />
         <audio id="audio1Player" controls></audio>
         <div class="waveform-container" id="waveform1"></div>
-    </div>
-    <div class="container">
+      </div>
+      <div class="container">
         <h3>audio 2</h3>
         <label for="audio2" class="file-upload-label">upload audio</label>
-        <input type="file" id="audio2" accept="audio/*">
+        <input type="file" id="audio2" accept="audio/*" />
         <audio id="audio2Player" controls></audio>
         <div class="waveform-container" id="waveform2"></div>
+      </div>
     </div>
     <div class="container">
-        <h3>interpolate</h3>
-        <input type="range" id="interpolationSlider" min="0.2" max="0.8" step="0.01" value="0.5">
-        <!-- <p>value: <span id="interpolationValue" class="value-display">0.5</span></p> -->
+      <h3>interpolate</h3>
+      <input
+        type="range"
+        id="interpolationSlider"
+        min="0.2"
+        max="0.8"
+        step="0.01"
+        value="0.5"
+      />
+      <p>
+        value: <span id="interpolationValue" class="value-display">0.5</span>
+      </p>
     </div>
     <details>
-        <summary>latent controls</summary>
-        <div class="container">
-            <div class="transform-control">
-                <input type="checkbox" id="scaleActive">
-                <label for="scaleActive">Scale</label>
-                <input type="range" id="scaleSlider" min="0" max="1" step="0.01" value="0.5">
-                <span id="scaleValue" class="value-display">0.5</span>
-            </div>
-            <div class="transform-control">
-                <input type="checkbox" id="rotateActive">
-                <label for="rotateActive">Rotate</label>
-                <input type="range" id="rotateSlider" min="0" max="1" step="0.01" value="0.5">
-                <span id="rotateValue" class="value-display">0.5</span>
-            </div>
-            <div class="transform-control">
-                <input type="checkbox" id="nonlinearActive">
-                <label for="nonlinearActive">Nonlinear</label>
-                <input type="range" id="nonlinearSlider" min="0" max="1" step="0.01" value="0.5">
-                <span id="nonlinearValue" class="value-display">0.5</span>
-            </div>
+      <summary>latent controls</summary>
+      <div class="container">
+        <div class="transform-control">
+          <input type="checkbox" id="scaleActive" />
+          <label for="scaleActive">Scale</label>
+          <input
+            type="range"
+            id="scaleSlider"
+            min="0.01"
+            max="2"
+            step="0.01"
+            value="0.5"
+          />
+          <span id="scaleValue" class="value-display">0.5</span>
         </div>
+        <div class="transform-control">
+          <input type="checkbox" id="rotateActive" />
+          <label for="rotateActive">Rotate</label>
+          <input
+            type="range"
+            id="rotateSlider"
+            min="0"
+            max="2"
+            step="0.01"
+            value="0.5"
+          />
+          <span id="rotateValue" class="value-display">0.5</span>
+        </div>
+        <div class="transform-control">
+          <input type="checkbox" id="nonlinearActive" />
+          <label for="nonlinearActive">nonlinear (tanh)</label>
+          <input
+            type="range"
+            id="nonlinearSlider"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.5"
+          />
+          <span id="nonlinearValue" class="value-display">0.5</span>
+        </div>
+      </div>
     </details>
     <button id="interpolateBtn">mix</button>
     <div class="container">
-        <h3>result</h3>
-        <audio id="resultAudio" controls></audio>
-        <div class="waveform-container" id="waveformResult"></div>
+      <h3>result</h3>
+      <audio id="resultAudio" controls></audio>
+      <div class="waveform-container" id="waveformResult"></div>
     </div>
 
     <script>
-        const audio1Input = document.getElementById('audio1');
-        const audio2Input = document.getElementById('audio2');
-        const audio1Player = document.getElementById('audio1Player');
-        const audio2Player = document.getElementById('audio2Player');
-        const interpolateBtn = document.getElementById('interpolateBtn');
-        const resultAudio = document.getElementById('resultAudio');
-        const interpolationSlider = document.getElementById('interpolationSlider');
-        const interpolationValue = document.getElementById('interpolationValue');
+      const audio1Input = document.getElementById("audio1");
+      const audio2Input = document.getElementById("audio2");
+      const audio1Player = document.getElementById("audio1Player");
+      const audio2Player = document.getElementById("audio2Player");
+      const interpolateBtn = document.getElementById("interpolateBtn");
+      const resultAudio = document.getElementById("resultAudio");
+      const interpolationSlider = document.getElementById(
+        "interpolationSlider",
+      );
+      const interpolationValue = document.getElementById("interpolationValue");
 
-        const transformControls = ['scale', 'rotate', 'nonlinear'].map(name => ({
-            active: document.getElementById(`${name}Active`),
-            slider: document.getElementById(`${name}Slider`),
-            value: document.getElementById(`${name}Value`)
-        }));
+      const transformControls = ["scale", "rotate", "nonlinear"].map(
+        (name) => ({
+          active: document.getElementById(`${name}Active`),
+          slider: document.getElementById(`${name}Slider`),
+          value: document.getElementById(`${name}Value`),
+        }),
+      );
 
-        function handleFileSelect(file, audioPlayer, waveformId) {
-            if (file) {
-                const url = URL.createObjectURL(file);
-                audioPlayer.src = url;
-                visualizeAudio(url, waveformId);
+      function handleFileSelect(file, audioPlayer, waveformId) {
+        if (file) {
+          const url = URL.createObjectURL(file);
+          audioPlayer.src = url;
+          visualizeAudio(url, waveformId);
+        }
+      }
+
+      function visualizeAudio(url, containerId) {
+        const container = document.getElementById(containerId);
+        const canvas = document.createElement("canvas");
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        container.innerHTML = "";
+        container.appendChild(canvas);
+        const ctx = canvas.getContext("2d");
+
+        const audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
+        const source = audioContext.createBufferSource();
+
+        fetch(url)
+          .then((response) => response.arrayBuffer())
+          .then((arrayBuffer) => audioContext.decodeAudioData(arrayBuffer))
+          .then((audioBuffer) => {
+            const data = audioBuffer.getChannelData(0);
+            const step = Math.ceil(data.length / canvas.width);
+            const amp = canvas.height / 2;
+
+            ctx.fillStyle = "#3498db";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < canvas.width; i++) {
+              let min = 1.0;
+              let max = -1.0;
+              for (let j = 0; j < step; j++) {
+                const datum = data[i * step + j];
+                if (datum < min) min = datum;
+                if (datum > max) max = datum;
+              }
+              ctx.fillRect(
+                i,
+                (1 + min) * amp,
+                1,
+                Math.max(1, (max - min) * amp),
+              );
             }
+          });
+      }
+
+      audio1Input.addEventListener("change", (event) => {
+        handleFileSelect(event.target.files[0], audio1Player, "waveform1");
+      });
+
+      audio2Input.addEventListener("change", (event) => {
+        handleFileSelect(event.target.files[0], audio2Player, "waveform2");
+      });
+
+      interpolationSlider.addEventListener("input", () => {
+        interpolationValue.textContent = interpolationSlider.value;
+      });
+
+      transformControls.forEach((control) => {
+        control.slider.addEventListener("input", () => {
+          control.value.textContent = control.slider.value;
+        });
+      });
+
+      interpolateBtn.addEventListener("click", async () => {
+        if (!audio1Input.files[0] || !audio2Input.files[0]) {
+          alert("Please select both audio files");
+          return;
         }
 
-        function visualizeAudio(url, containerId) {
-            const container = document.getElementById(containerId);
-            const canvas = document.createElement('canvas');
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-            container.innerHTML = '';
-            container.appendChild(canvas);
-            const ctx = canvas.getContext('2d');
+        const formData = new FormData();
+        formData.append("file1", audio1Input.files[0]);
+        formData.append("file2", audio2Input.files[0]);
+        formData.append("x", interpolationSlider.value);
 
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioContext.createBufferSource();
+        const transforms = {
+          scale: parseFloat(transformControls[0].slider.value),
+          rotate: parseFloat(transformControls[1].slider.value),
+          nonlinear: parseFloat(transformControls[2].slider.value),
+          scale_active: transformControls[0].active.checked,
+          rotate_active: transformControls[1].active.checked,
+          nonlinear_active: transformControls[2].active.checked,
+        };
 
-            fetch(url)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-                .then(audioBuffer => {
-                    const data = audioBuffer.getChannelData(0);
-                    const step = Math.ceil(data.length / canvas.width);
-                    const amp = canvas.height / 2;
+        formData.append("transforms", JSON.stringify(transforms));
 
-                    ctx.fillStyle = '#3498db';
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        try {
+          const response = await fetch("/interpolate/", {
+            method: "POST",
+            body: formData,
+          });
 
-                    for (let i = 0; i < canvas.width; i++) {
-                        let min = 1.0;
-                        let max = -1.0;
-                        for (let j = 0; j < step; j++) {
-                            const datum = data[(i * step) + j];
-                            if (datum < min) min = datum;
-                            if (datum > max) max = datum;
-                        }
-                        ctx.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
-                    }
-                });
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            resultAudio.src = url;
+            resultAudio.play();
+            visualizeAudio(url, "waveformResult");
+          } else {
+            console.error("Error:", response.statusText);
+            alert("An error occurred during interpolation");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred during interpolation");
         }
-
-        audio1Input.addEventListener('change', (event) => {
-            handleFileSelect(event.target.files[0], audio1Player, 'waveform1');
-        });
-
-        audio2Input.addEventListener('change', (event) => {
-            handleFileSelect(event.target.files[0], audio2Player, 'waveform2');
-        });
-
-        interpolationSlider.addEventListener('input', () => {
-            interpolationValue.textContent = interpolationSlider.value;
-        });
-
-        transformControls.forEach(control => {
-            control.slider.addEventListener('input', () => {
-                control.value.textContent = control.slider.value;
-            });
-        });
-
-        interpolateBtn.addEventListener('click', async () => {
-            if (!audio1Input.files[0] || !audio2Input.files[0]) {
-                alert('Please select both audio files');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file1', audio1Input.files[0]);
-            formData.append('file2', audio2Input.files[0]);
-            formData.append('x', interpolationSlider.value);
-
-            const transforms = {
-                scale: parseFloat(transformControls[0].slider.value),
-                rotate: parseFloat(transformControls[1].slider.value),
-                nonlinear: parseFloat(transformControls[2].slider.value),
-                scale_active: transformControls[0].active.checked,
-                rotate_active: transformControls[1].active.checked,
-                nonlinear_active: transformControls[2].active.checked
-            };
-
-            formData.append('transforms', JSON.stringify(transforms));
-
-            try {
-                const response = await fetch('http://localhost:8000/interpolate/', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    resultAudio.src = url;
-                    resultAudio.play();
-                    visualizeAudio(url, 'waveformResult');
-                } else {
-                    console.error('Error:', response.statusText);
-                    alert('An error occurred during interpolation');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred during interpolation');
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>
