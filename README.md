@@ -33,10 +33,13 @@
 
 My main goal for this tool is to provide a **quick and easy** way to mix 2 different samples to generate new
 and **interesting** sounds.
+
 The tool allows you to interpolate two embeddings by using a weighted average between them.
 After that you can sequentially apply different transformations on the embedding (currently scaling, rotating and a nonlinear transform).
 
-## Installation
+## Running
+
+### Install deps
 
 ```sh
 uv venv
@@ -44,9 +47,9 @@ source .venv/bin/activate
 uv pip install -r requirements.txt
 ```
 
-# Download and extract the VAE checkpoint
+### Download and extract the VAE checkpoint
 
-shoutout to lyra for the idea ([her post on twitter](https://twitter.com/_lyraaaa_/status/1804256808900661562))
+shoutout to lyra for the recipe ([her post on twitter](https://twitter.com/_lyraaaa_/status/1804256808900661562))
 
 ```python
 from stable_audio_tools import get_pretrained_model
@@ -54,7 +57,7 @@ model, model_config = get_pretrained_model("stabilityai/stable-audio-open-1.0")
 torch.save({"state_dict": model.pretransform.model.state_dict()}, "vae.ckpt")
 ```
 
-# Start the backend
+### Start the backend
 
 ```sh
 fastapi dev main.py
